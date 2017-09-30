@@ -1,22 +1,30 @@
+require('dotenv').config()
 const Twit = require('twit')
+const fs = require('fs')
 
 const twitterAPI = new Twit({
-    consumer_key: '',
-    consumer_secret: '',
-    access_token: '',
-    access_token_secret: '',
+    consumer_key: process.env.CONSUMER_KEY,
+    consumer_secret: process.env.CONSUMER_SECRET,
+    access_token: process.env.ACCESS_TOKEN,
+    access_token_secret: process.env.ACCESS_TOKEN_SECRET
 })
-
-const INTERVAL = 61000
 
 var opt = {
     screen_name: process.argv[2],
     cursor: '-1',
-    count: '200'
+    count: '200',
 }
 
+const INTERVAL = 60001
+const destFolder = __dirname + '/' + opt.screen_name
+
+console.log('Creating folder: ' + destFolder)
+fs.mkdir(destFolder)
+
 function getFollowers() {
+    console.log('Requesting data')
     const promise = new Promise((resolve, reject) => {
+        console.log('Data received')
         twitterAPI.get('followers/list', opt, (err, data, response) => {
             if (data) resolve(data)
         })
@@ -24,37 +32,22 @@ function getFollowers() {
     return promise
 }
 
-function putHeader(data) {
-    var keys = Object.keys(data.users[0])
-    var str = ''
-    for (key of keys) {
-        (key == keys[keys.length - 1]) ? str += key : str += key + ','
-    }
-    console.log(str)
-}
-
-function saveUser(user) {
-    var str = ''
-    var keys = Object.keys(user)
-    for (key of keys) {
-        (key == keys[keys.length - 1]) ? str += user[key] : str += user[key] + ','
-    }
-    console.log(str)
+function saveDataJSON(json) {
+    console.log('Saving data')
+    fs.writeFileSync((destFolder + '/' + opt.screen_name + opt.cursor + '.json'), json);
 }
 
 function main() {
-    getFollowers().then((data) => {
-        if (opt.cursor == "-1" && data.users.length > 0) putHeader(data)
-        for (user of data.users) {
-            saveUser(user);
-        }
+    getFollowers().then(data => {
+        let json = JSON.stringify(data.users)
+        saveDataJSON(json)
         opt.cursor = data.next_cursor_str
-        if (data.next_cursor_str == '0') process.exit()
+        if (data.next_cursor_str == '0') clearInterval(intervalFun)
     })
 }
 
 main()
 
-setInterval(() => {
+intervalFun = setInterval(() => {
     main()
 }, INTERVAL)
