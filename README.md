@@ -6,10 +6,10 @@ Receive the data of followers on a Twitter account in JSON files
 
 Download NodeJS 6.*, install the dependencies and set your API credentials in a .env file inside the folder, and start to download the data.
 
-CONSUMER_KEY=YourConsumerKey
-CONSUMER_SECRET=YourConsumerSecret
-ACCESS_TOKEN=YourAccessToken
-ACCESS_TOKEN_SECRET=YourAccessTokenSecret
+CONSUMER_KEY=YourConsumerKey  
+CONSUMER_SECRET=YourConsumerSecret  
+ACCESS_TOKEN=YourAccessToken  
+ACCESS_TOKEN_SECRET=YourAccessTokenSecret  
 
 # Note
 
